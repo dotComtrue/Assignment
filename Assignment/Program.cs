@@ -142,7 +142,7 @@ namespace Assignment
                 return null;
             }
 
-            if (!value.All(c => char.IsLetterOrDigit(c)) && Int32.TryParse(value, out int result))
+            if (!value.All(c => char.IsLetterOrDigit(c)) && !Int32.TryParse(value, out int result))
             {
                 Console.WriteLine("Value must either be a alphanumeric register name or a digital input value.");
                 return null;
@@ -156,12 +156,17 @@ namespace Assignment
                 return null;
             }
 
-            Operation operationEnum = GetOperationEnum(operation) ?? new Operation();
+            var operationEnum = GetOperationEnum(operation);
+            if (operationEnum == null)
+            {
+                Console.WriteLine("Invalid operation value.");
+                return null;
+            }
             
             return new Entry()
             {
                 Register = register,
-                Operation = operationEnum,
+                Operation = (Operation)operationEnum,
                 Value = value
             };
         }
@@ -204,18 +209,21 @@ namespace Assignment
             if (!input[0].ToLowerInvariant().Equals("print"))
             {
                 Console.WriteLine("Invalid input.");
+                return;
             }
 
             string registry = input[1];
             if (!Entries.Any(entry => entry.Register.ToLowerInvariant().Equals(registry.ToLowerInvariant())))
             {
                 Console.WriteLine($"There is no registry with name {registry}.");
+                return;
             }
             
             var result = GetResult(registry);
             if (result == null)
             {
                 Console.WriteLine($"Could not calculate result.");
+                return;
             }
             Console.WriteLine(result.ToString());
         }
